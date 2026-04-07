@@ -1,6 +1,7 @@
 # Velvet Event Protocol
 
 **Enforcement layer for event-driven actuation in the Velvet ecosystem.**
+**Depends on: velvet-receipts >= v1.0.0**
 
 This repository defines the internal event law of the Velvet runtime. It governs how decisions become actions — ensuring no actuation occurs without authorization, logging, and validation.
 
