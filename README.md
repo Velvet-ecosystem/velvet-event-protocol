@@ -94,6 +94,17 @@ rt = build_event_runtime(
 
 ---
 
+## Intent Event Contract
+
+Velvet Event Protocol treats events as structured meaning, not permission.
+
+Scenes, modules, CAN observers, and runtime services may emit events, but events do not authorize or execute hardware by themselves. Write-capable behavior must pass validation, policy authorization, capability checks, safety gates, and receipt logging.
+
+See:
+
+- [Intent Event Contract](docs/intent_event_contract.md)
+
+---
 ## Event Types
 
 Event types are case-sensitive.
