@@ -92,6 +92,15 @@ See:
 
 - [Intent Event Contract](docs/intent_event_contract.md)
 - [Court Authority Boundary](docs/court_authority_boundary.md)
+- [Decoded CAN Observation Contract](docs/decoded_can_observation_contract.md)
+
+## Decoded CAN Observations
+
+`DECODED_CAN_SIGNAL_OBSERVED` carries one confidence-scored, interpreted vehicle telemetry value from a trusted local producer.
+
+It is always observation-only. The contract forbids executor names, routes, capabilities, hardware targets, commands, tokens, and actuation claims inside the payload.
+
+Use the helpers in `decoded_can_observation.py` to build and validate these events.
 
 ## Event Types
 
