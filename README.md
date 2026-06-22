@@ -1,158 +1,155 @@
 # Velvet Event Protocol
 
-**Enforcement layer for event-driven actuation in the Velvet ecosystem.**
-**Depends on: velvet-receipts >= v1.0.0.**
+**Structured event transport and receipt-aware delivery for the Velvet ecosystem.**
 
-This repository defines the internal event law of the Velvet runtime. It governs how decisions become actions — ensuring no actuation occurs without authorization, logging, and validation.
+**Depends on:** `velvet-receipts >= v1.0.0`
 
-> **This module enforces behavior. It does not trust it.**
+Velvet Event Protocol carries observations, lifecycle changes, requests, decisions, and execution results between trusted local components.
 
----
+It does not grant authority and it does not execute hardware.
+
+> Events describe. Court authorizes. Safety gates approve conditions. Executors act. Receipts remember.
 
 ## Core Doctrine
 
-- **No ACTUATION without a valid receipt.**
-- **Cognition proposes. Court decides. Executors act.**
-- **All actions must be logged before execution.**
+- Events are structured meaning, not permission.
+- A receipt proves that a decision or result was recorded. It does not create authority.
+- Physical and write-capable actions must pass through Velvet Runtime.
+- Direct event-bus access remains prohibited outside trusted runtime wiring.
+- No event helper may create an alternate actuation path around Court.
 
-These are not conventions. They are enforced structurally by `EventEnforcer` and `runtime_wiring`.
+## Authoritative Execution Path
 
----
-
-## Flow
-
+```text
+input
+  -> verified identity context
+  -> strict intent
+  -> capability context
+  -> Court authorization
+  -> signed capability token
+  -> matching safety gate
+  -> approved executor
+  -> execution receipts
+  -> result and observation events
 ```
-decision → receipt → validation → enforcer → bus → handlers
+
+The event protocol participates before and after execution:
+
+- before execution, it may carry observations or route requests
+- after execution, it may distribute Court decisions, denials, execution outcomes, and state changes
+
+It never substitutes for Court, safety, replay protection, or the approved executor.
+
+## Event Delivery Path
+
+```text
+producer
+  -> hardened publish interface
+  -> receipt validation where required
+  -> EventEnforcer
+  -> EventBus
+  -> registered handlers
 ```
 
-1. A decision is made upstream (brain adapter / policy layer).
-2. A receipt is created and logged via `velvet-receipts`.
-3. The receipt ID is attached to the event.
-4. `EventEnforcer` validates the receipt before allowing publish.
-5. `EventBus` delivers the event to registered handlers.
+The enforcer validates event shape, source restrictions, and receipt requirements. Those checks are transport enforcement, not action authorization.
 
----
+## Receipted Events
 
-## Usage
+Use `publish_receipted_event()` for observations and lifecycle events that require a receipt:
 
 ```python
-from velvet_event_protocol.runtime_wiring import build_event_runtime
+from core_action import publish_receipted_event
 
-rt = build_event_runtime(
-    receipt_validator=...,
-    allowed_actuation_sources={"core"}
-)
-
-rt["publish"](event)
-```
-
-Subscribe handlers before publishing:
-
-```python
-rt["bus"].subscribe(my_handler)
-```
-
-For authorized actuation with receipt creation, use `core_action`:
-
-```python
-from velvet_event_protocol.core_action import execute_authorized_action
-
-execute_authorized_action(
-    enforcer_publish=rt["publish"],
+publish_receipted_event(
+    enforcer_publish=runtime_publish,
     receipt_logger=logger,
-    policy="AutoHeadlightPolicy",
-    authorized_by="core",
-    domain="lighting",
-    notes="Low light detected",
-    payload={"headlights": "ON"},
+    event_type="EXECUTION_COMPLETED",
+    source="velvet-runtime",
+    policy="RuntimeExecutionContract",
+    authorized_by="ApprovedExecutor",
+    domain="execution",
+    payload={"executor_name": "runtime-status"},
 )
 ```
 
----
+`publish_receipted_event()` refuses `ACTUATION` events.
 
-## Receipt Validation
-
-By default, the protocol enforces the presence of a `receipt_id`.
-
-To enforce that the receipt exists in the ledger, a validator must be provided:
-
-```python
-from velvet_event_protocol.receipt_bridge import make_receipt_validator
-
-rt = build_event_runtime(
-    receipt_validator=make_receipt_validator("receipts.log"),
-    allowed_actuation_sources={"core"}
-)
-```
-
-**Without a validator:**
-- ACTUATION without `receipt_id` is blocked
-- ACTUATION with any `receipt_id` is allowed
-
-**With a validator:**
-- Only receipts present in the ledger are accepted
-
----
+The former `execute_authorized_action()` helper is retired and fails closed. Receipt creation by itself is not enough to authorize an action.
 
 ## Intent Event Contract
 
-Velvet Event Protocol treats events as structured meaning, not permission.
+Scenes, modules, CAN observers, and runtime services may emit structured intent or observation events. Such events may include a public route ID and bounded parameters, but they must not carry direct executor authority.
 
-Scenes, modules, CAN observers, and runtime services may emit events, but events do not authorize or execute hardware by themselves. Write-capable behavior must pass validation, policy authorization, capability checks, safety gates, and receipt logging.
+Events must not be treated as permission to:
+
+- select an executor
+- choose raw capabilities or hardware targets
+- invoke shell commands
+- import arbitrary modules
+- touch relays, CAN writers, actuators, or other hardware
 
 See:
 
 - [Intent Event Contract](docs/intent_event_contract.md)
+- [Court Authority Boundary](docs/court_authority_boundary.md)
 
----
 ## Event Types
 
 Event types are case-sensitive.
 
-```
-"ACTUATION"   → valid, enforced
-"actuation"   → NOT enforced
-```
-
-Always use the defined constants from `event_types.py`:
-
-```python
-from velvet_event_protocol.event_types import ACTION_EVENTS
+```text
+ACTUATION   valid event type, but only approved Runtime executors may originate it
+actuation   different string and not equivalent
 ```
 
----
+Use constants from `event_types.py` rather than handwritten event names where available.
 
-## Critical Rule
+## Critical Boundary
 
-Modules must **never**:
+Modules must never:
 
-- Access `EventBus` directly
-- Call `_publish`
-- Bypass `runtime_wiring`
+- access `EventBus` directly
+- call `_publish`
+- bypass runtime wiring
+- treat a valid receipt ID as authority
+- create ACTUATION events outside the approved Runtime executor path
 
-All event publishing must go through:
+All publishing must pass through the hardened publish interface supplied by Runtime.
 
-```
-rt["publish"] → EventEnforcer → EventBus
-```
+## What This Repository Owns
 
-Violating this breaks the enforcement model.
+- event schemas
+- event delivery
+- source and receipt enforcement
+- observation and lifecycle event contracts
+- request and result transport
 
----
+## What This Repository Does Not Own
 
-## ⚠ Warnings
+- identity verification
+- continuity verification
+- capability policy
+- Court authorization
+- capability-token signing
+- safety-gate selection
+- executor registration
+- replay protection
+- hardware execution
 
-```
-DO NOT bypass runtime_wiring.
-DO NOT access EventBus directly.
-DO NOT attempt to publish without enforcer.
-```
+Those responsibilities belong to `velvet-runtime` and their supporting ecosystem contracts.
 
-Direct use of `EventBus._publish` outside of `runtime_wiring` is a doctrine violation and will not be supported.
+## Security Warning
 
----
+A receipt is evidence, not permission.
+
+A bus event is information, not authority.
+
+Any code path that turns either directly into hardware action is a doctrine violation.
 
 ## Version
 
-`v1.5.1` — documentation polish release.
-Part of the Velvet ecosystem. Requires `velvet-receipts` for full actuation path.
+`v1.6.0` doctrine-alignment phase.
+
+## License
+
+GPLv3. Part of the Velvet ecosystem.
