@@ -93,6 +93,7 @@ See:
 - [Intent Event Contract](docs/intent_event_contract.md)
 - [Court Authority Boundary](docs/court_authority_boundary.md)
 - [Decoded CAN Observation Contract](docs/decoded_can_observation_contract.md)
+- [Ghost CAN Observation Contract](docs/ghost_can_observation_contract.md)
 
 ## Decoded CAN Observations
 
@@ -101,6 +102,14 @@ See:
 It is always observation-only. The contract forbids executor names, routes, capabilities, hardware targets, commands, tokens, and actuation claims inside the payload.
 
 Use the helpers in `decoded_can_observation.py` to build and validate these events.
+
+## Ghost CAN Observations
+
+`vehicle.can.ghost_observation` carries synthetic/read-only CAN telemetry for the public jarred-car demo loop.
+
+Use the helpers in `ghost_can_observation.py` or `velvet_event_protocol.ghost_can_observation` to build and validate the event before passing it between `velvet-vehicle-can`, `velvet-runtime`, `velvet-receipts`, and future UI surfaces.
+
+A valid ghost CAN event must declare that it is read-only, fixture-backed, has not opened a physical bus, has not attempted or performed CAN transmission, has not performed actuation, and has not granted authority.
 
 ## Event Types
 
@@ -157,7 +166,7 @@ Any code path that turns either directly into hardware action is a doctrine viol
 
 ## Version
 
-`v1.6.0` doctrine-alignment phase.
+`v1.6.2` public ghost CAN protocol phase.
 
 ## License
 
