@@ -115,6 +115,11 @@ class AudioOutputEvidenceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "forbidden"):
                 record.to_payload(AUDIO_OUTPUT_BOOKED)
 
+    def test_priority_is_bounded_to_audio_priority_range(self):
+        for priority in (-1, 101):
+            with self.assertRaisesRegex(ValueError, "priority"):
+                self._record(priority=priority).to_payload(AUDIO_OUTPUT_BOOKED)
+
     def test_plain_transport_envelope_without_metadata_is_supported(self):
         payload = self._record().to_payload(AUDIO_OUTPUT_BOOKED)
         validate_audio_output_event({
