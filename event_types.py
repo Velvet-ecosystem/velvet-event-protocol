@@ -28,6 +28,10 @@ OBSERVATION_EVENTS = {
     "DECODED_CAN_SIGNAL_OBSERVED",
 }
 
+EXPRESSION_EVENTS = {
+    "language.expression.speech_requested",
+}
+
 COGNITIVE_EVENTS = {
     "cognitive.event.opened",
     "cognitive.event.updated",

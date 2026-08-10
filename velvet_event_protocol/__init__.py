@@ -33,6 +33,14 @@ from .ghost_can_observation import (
     build_ghost_can_observation_event,
     validate_ghost_can_observation_event,
 )
+from .speech_expression import (
+    CONTRACT as SPEECH_EXPRESSION_CONTRACT,
+    SCHEMA_VERSION as SPEECH_EXPRESSION_SCHEMA_VERSION,
+    SPEECH_EXPRESSION_REQUESTED,
+    SpeechExpressionRecord,
+    build_speech_expression_event,
+    validate_speech_expression_event,
+)
 
 __all__ = [
     "EventBus",
@@ -64,4 +72,10 @@ __all__ = [
     "CognitiveEventRecord",
     "build_cognitive_event",
     "validate_cognitive_event",
+    "SPEECH_EXPRESSION_CONTRACT",
+    "SPEECH_EXPRESSION_SCHEMA_VERSION",
+    "SPEECH_EXPRESSION_REQUESTED",
+    "SpeechExpressionRecord",
+    "build_speech_expression_event",
+    "validate_speech_expression_event",
 ]
