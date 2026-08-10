@@ -1,6 +1,20 @@
 # SPDX-License-Identifier: GPL-3.0-only
 """Public package surface for Velvet Event Protocol."""
 
+from .audio_output_evidence import (
+    AUDIO_OUTPUT_BOOKED,
+    AUDIO_OUTPUT_COMPLETED,
+    AUDIO_OUTPUT_EVENT_TYPES,
+    AUDIO_OUTPUT_FAILED,
+    AUDIO_OUTPUT_PREEMPTED,
+    AUDIO_OUTPUT_RECOVERED,
+    AUDIO_OUTPUT_STARTED,
+    CONTRACT as AUDIO_OUTPUT_EVIDENCE_CONTRACT,
+    SCHEMA_VERSION as AUDIO_OUTPUT_EVIDENCE_SCHEMA_VERSION,
+    AudioOutputEvidenceRecord,
+    build_audio_output_event,
+    validate_audio_output_event,
+)
 from .cognitive_events import (
     ACTION_TRACKING_FINISHED,
     ACTION_TRACKING_STARTED,
@@ -78,4 +92,16 @@ __all__ = [
     "SpeechExpressionRecord",
     "build_speech_expression_event",
     "validate_speech_expression_event",
+    "AUDIO_OUTPUT_EVIDENCE_CONTRACT",
+    "AUDIO_OUTPUT_EVIDENCE_SCHEMA_VERSION",
+    "AUDIO_OUTPUT_EVENT_TYPES",
+    "AUDIO_OUTPUT_BOOKED",
+    "AUDIO_OUTPUT_STARTED",
+    "AUDIO_OUTPUT_COMPLETED",
+    "AUDIO_OUTPUT_PREEMPTED",
+    "AUDIO_OUTPUT_FAILED",
+    "AUDIO_OUTPUT_RECOVERED",
+    "AudioOutputEvidenceRecord",
+    "build_audio_output_event",
+    "validate_audio_output_event",
 ]
