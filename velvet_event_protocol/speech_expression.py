@@ -72,6 +72,7 @@ class SpeechExpressionRecord:
     audience: str = "owner"
     requested_profile: str = "owner_default"
     driving_load: str = "low"
+    emergency_context: bool = False
     quiet_requested: bool = False
     social_allowed: bool = False
     interrupt: bool = False
@@ -87,6 +88,7 @@ class SpeechExpressionRecord:
             "audience": self.audience.strip().casefold(),
             "requested_profile": self.requested_profile.strip(),
             "driving_load": self.driving_load.strip().casefold(),
+            "emergency_context": self.emergency_context,
             "quiet_requested": self.quiet_requested,
             "social_allowed": self.social_allowed,
             "interrupt": self.interrupt,
@@ -167,7 +169,12 @@ def _validate_payload(payload: Mapping[str, Any]) -> None:
 
     for name in ("audience", "requested_profile", "generator", "policy_version"):
         _text(name, payload.get(name))
-    for name in ("quiet_requested", "social_allowed", "interrupt"):
+    for name in (
+        "emergency_context",
+        "quiet_requested",
+        "social_allowed",
+        "interrupt",
+    ):
         _boolean(name, payload.get(name))
     for name, expected in _FIXED_FLAGS.items():
         if payload.get(name) is not expected:
