@@ -60,6 +60,19 @@ COGNITIVE_EVENTS = {
     "cognitive.health.changed",
 }
 
+LEARNING_SESSION_EVENTS = {
+    "learning.session.proposed",
+    "learning.session.eligibility_checked",
+    "learning.session.opened",
+    "learning.session.studying",
+    "learning.session.review_pending",
+    "learning.session.paused",
+    "learning.session.degraded",
+    "learning.session.insufficient_evidence",
+    "learning.session.completed",
+    "learning.session.aborted",
+}
+
 DISTRIBUTED_WORK_EVENTS = {
     "NODE_ADVERTISEMENT_PUBLISHED",
     "WORK_OFFERED",
