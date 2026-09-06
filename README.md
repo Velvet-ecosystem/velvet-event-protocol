@@ -315,6 +315,21 @@ Implemented foundations include:
 5. Define module certification checks against the Event Laws.
 6. Add privacy-aware subscription and retention guidance.
 
+## Tests
+
+From the repository root:
+
+```bash
+python -m pip install -e . 'pytest>=7.4,<8.4'
+python -m pytest tests -q -ra
+```
+
+Pytest is the supported complete-suite runner for both `TestCase` methods and
+module-level functions, including the truth-event tests. Installing pytest
+while keeping `unittest discover` would still omit those functions. The test
+dependency range preserves Python 3.8 support; CI runs on Python 3.8, 3.10,
+and 3.12, prints the executed result/count, and retains JUnit XML for each run.
+
 ## Security Warning
 
 A bus event is information, not authority.
