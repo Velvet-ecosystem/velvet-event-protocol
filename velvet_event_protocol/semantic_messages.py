@@ -198,6 +198,9 @@ def validate_semantic_message(event: EventLike) -> None:
 
 
 def _validate_payload(payload: Mapping[str, Any]) -> None:
+    forbidden = _forbidden(payload)
+    if forbidden:
+        raise ValueError("semantic message contains forbidden fields: {}".format(sorted(forbidden)))
     unknown = set(payload) - _ALLOWED_PAYLOAD_KEYS
     if unknown:
         raise ValueError("semantic message contains unknown fields: {}".format(sorted(unknown)))
@@ -226,9 +229,6 @@ def _validate_payload(payload: Mapping[str, Any]) -> None:
     for key, expected in _FLAGS.items():
         if payload.get(key) != expected:
             raise ValueError("semantic message {} must be {!r}".format(key, expected))
-    forbidden = _forbidden(payload)
-    if forbidden:
-        raise ValueError("semantic message contains forbidden fields: {}".format(sorted(forbidden)))
 
 
 def _forbidden(value: Any) -> set:
