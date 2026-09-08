@@ -140,6 +140,14 @@ class SemanticMessageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "forbidden fields"):
             validate_semantic_message(document)
 
+    def test_unknown_payload_field_is_rejected(self):
+        event = self.event()
+        document = event.to_dict()
+        document["payload"] = copy.deepcopy(event.payload)
+        document["payload"]["friendly_extra"] = "undeclared side channel"
+        with self.assertRaisesRegex(ValueError, "unknown fields"):
+            validate_semantic_message(document)
+
     def test_memory_write_cannot_be_flipped(self):
         event = self.event()
         document = event.to_dict()
