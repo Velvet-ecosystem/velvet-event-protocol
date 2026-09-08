@@ -35,6 +35,25 @@ _FLAGS = {
     "memory_write": False,
 }
 
+_ALLOWED_PAYLOAD_KEYS = {
+    "schema_version",
+    "message_id",
+    "sender_identity_id",
+    "recipient_identity_ids",
+    "purpose",
+    "speech_act",
+    "semantic_content",
+    "source_refs",
+    "evidence_refs",
+    "confidence",
+    "urgency",
+    "privacy_scope",
+    "requested_response",
+    "reply_to_message_id",
+    "correlation_ids",
+    *_FLAGS,
+}
+
 _FORBIDDEN_KEYS = {
     "actuate",
     "actuation",
@@ -179,6 +198,9 @@ def validate_semantic_message(event: EventLike) -> None:
 
 
 def _validate_payload(payload: Mapping[str, Any]) -> None:
+    unknown = set(payload) - _ALLOWED_PAYLOAD_KEYS
+    if unknown:
+        raise ValueError("semantic message contains unknown fields: {}".format(sorted(unknown)))
     if payload.get("schema_version") != SCHEMA_VERSION:
         raise ValueError("semantic message payload schema mismatch")
     for name in ("message_id", "sender_identity_id", "purpose", "semantic_content"):
