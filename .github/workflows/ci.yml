@@ -27,8 +27,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install package
-        run: python -m pip install -e .
+      - name: Install package and test runner
+        run: python -m pip install -e . 'pytest>=7.4,<8.4'
 
       - name: Run tests
-        run: python -m unittest discover -s tests -v
+        run: python -m pytest tests -q -ra --junitxml=pytest-${{ matrix.python-version }}.xml
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pytest-event-protocol-${{ matrix.python-version }}
+          path: pytest-${{ matrix.python-version }}.xml
