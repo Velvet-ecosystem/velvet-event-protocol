@@ -65,6 +65,38 @@ from .learning_session_events import (
     build_learning_session_event,
     validate_learning_session_event,
 )
+from .radar_observation import (
+    RADAR_DETECTION_FRAME,
+    RADAR_LOCAL_TRACK,
+    RadarClassification,
+    RadarDetection,
+    RadarDetectionFrame,
+    RadarLocalTrack,
+)
+from .sensor_capabilities import (
+    SENSOR_CAPABILITIES_CONTRACT,
+    SENSOR_CAPABILITIES_REPORTED,
+    SensorCapabilities,
+    build_sensor_capabilities_event,
+)
+from .sensor_disagreement import (
+    SENSOR_DISAGREEMENT_CONTRACT,
+    SENSOR_DISAGREEMENT_REPORTED,
+    SensorDisagreement,
+    build_sensor_disagreement_event,
+)
+from .sensor_envelope import (
+    SENSOR_ENVELOPE_CONTRACT,
+    SENSOR_OBSERVATION_REPORTED,
+    SensorEnvelope,
+    build_sensor_observation_event,
+)
+from .sensor_lifecycle import (
+    SENSOR_LIFECYCLE_CONTRACT,
+    SENSOR_LIFECYCLE_REPORTED,
+    SensorLifecycleEvent,
+    build_sensor_lifecycle_event,
+)
 from .speech_expression import (
     CONTRACT as SPEECH_EXPRESSION_CONTRACT,
     SCHEMA_VERSION as SPEECH_EXPRESSION_SCHEMA_VERSION,
@@ -120,6 +152,28 @@ __all__ = [
     "LearningSessionEventRecord",
     "build_learning_session_event",
     "validate_learning_session_event",
+    "RADAR_DETECTION_FRAME",
+    "RADAR_LOCAL_TRACK",
+    "RadarClassification",
+    "RadarDetection",
+    "RadarDetectionFrame",
+    "RadarLocalTrack",
+    "SENSOR_CAPABILITIES_CONTRACT",
+    "SENSOR_CAPABILITIES_REPORTED",
+    "SensorCapabilities",
+    "build_sensor_capabilities_event",
+    "SENSOR_DISAGREEMENT_CONTRACT",
+    "SENSOR_DISAGREEMENT_REPORTED",
+    "SensorDisagreement",
+    "build_sensor_disagreement_event",
+    "SENSOR_ENVELOPE_CONTRACT",
+    "SENSOR_OBSERVATION_REPORTED",
+    "SensorEnvelope",
+    "build_sensor_observation_event",
+    "SENSOR_LIFECYCLE_CONTRACT",
+    "SENSOR_LIFECYCLE_REPORTED",
+    "SensorLifecycleEvent",
+    "build_sensor_lifecycle_event",
     "SPEECH_EXPRESSION_CONTRACT",
     "SPEECH_EXPRESSION_SCHEMA_VERSION",
     "SPEECH_EXPRESSION_REQUESTED",
