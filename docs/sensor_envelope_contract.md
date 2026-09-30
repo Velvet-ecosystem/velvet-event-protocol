@@ -1,6 +1,6 @@
 # Velvet Sensor Envelope Contract v0.1
 
-Status: proposed foundation contract.
+Status: foundation contract.
 
 ## Purpose
 
@@ -72,7 +72,7 @@ Envelope-level confidence only describes broad message usability. It must not re
 
 ## Provenance
 
-Messages should identify the adapter/driver and, when available, firmware or model version. This lets Velour reconstruct which software and calibration produced an observation.
+Messages should identify the adapter/driver and, when available, firmware or model version. This lets evidence consumers reconstruct which software and calibration produced an observation.
 
 ## Sensor-specific payloads
 
@@ -88,6 +88,6 @@ The shared envelope does not force all sensors into one measurement model. Paylo
 
 Consumers should subscribe to normalized measurements and capabilities rather than vendor-specific packet formats.
 
-## Next contracts
+## Specialization contracts
 
-The first planned specializations are radar observations, sensor lifecycle events, sensor disagreement evidence, and sensor capability declarations.
+The first specialization layer defines radar detections and local tracks, sensor lifecycle evidence, cross-sensor disagreement evidence, and sensor capability declarations. See `docs/radar_sensor_specialization_contracts.md`.
