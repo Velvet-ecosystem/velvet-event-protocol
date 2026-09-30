@@ -4,14 +4,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any, Mapping, Union
 
 from event_schema import VelvetEvent
 
 SENSOR_DISAGREEMENT_REPORTED = "SENSOR_DISAGREEMENT_REPORTED"
 SENSOR_DISAGREEMENT_CONTRACT = "velvet.sensor-disagreement.v0.1"
 DISAGREEMENT_SEVERITIES = {"info", "low", "medium", "high", "critical"}
-_SCALAR = int | float | str | bool
+_SCALAR = Union[int, float, str, bool]
 
 
 @dataclass(frozen=True)
