@@ -35,15 +35,21 @@ class TestCoreActionBoundary(unittest.TestCase):
 
     def test_receipted_event_helper_refuses_actuation(self):
         module = self.load_module()
-        with self.assertRaises(RuntimeError):
-            module.publish_receipted_event(
-                enforcer_publish=lambda event: None,
-                receipt_logger=MagicMock(),
-                event_type="ACTUATION",
-                source="core",
-                policy="LegacyPolicy",
-                authorized_by="core",
-            )
+        for event_type in ("ACTUATION", "actuation", " ACTUATION "):
+            with self.subTest(event_type=event_type):
+                publish = MagicMock()
+                logger = MagicMock()
+                with self.assertRaises(RuntimeError):
+                    module.publish_receipted_event(
+                        enforcer_publish=publish,
+                        receipt_logger=logger,
+                        event_type=event_type,
+                        source="core",
+                        policy="LegacyPolicy",
+                        authorized_by="core",
+                    )
+                publish.assert_not_called()
+                logger.log.assert_not_called()
 
     def test_receipted_observation_may_be_published(self):
         module = self.load_module()

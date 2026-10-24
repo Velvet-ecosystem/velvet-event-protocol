@@ -1,6 +1,6 @@
 from typing import Callable, Optional, Set
 from velvet_event_protocol.event_bus import EventBus
-from velvet_event_protocol.event_enforcer import EventEnforcer
+from velvet_event_protocol.enforcer import EventEnforcer
 
 
 def build_event_runtime(
@@ -24,7 +24,7 @@ def build_event_runtime(
     """
     bus = EventBus()
     enforcer = EventEnforcer(
-        bus._publish,
+        publish_fn=bus._publish,
         receipt_validator=receipt_validator,
         allowed_actuation_sources=allowed_actuation_sources,
     )

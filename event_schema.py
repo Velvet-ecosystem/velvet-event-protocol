@@ -27,7 +27,7 @@ class VelvetEvent:
 
     # Optional linkage
     parent_event_id: Optional[str] = None
-    receipt_id: Optional[str] = None  # filled AFTER authorization
+    receipt_id: Optional[str] = None  # observational linkage, never execution authority
 
 
     def to_dict(self) -> Dict[str, Any]:

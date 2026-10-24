@@ -11,7 +11,14 @@ class UnauthorizedEventError(Exception):
 
 
 class EventEnforcer:
-    """Enforce transport rules before publishing onto the internal EventBus."""
+    """Publish evidence and requests, never physical execution authority.
+
+    ACTUATION is reserved and always rejected here. Receipt lookup and source
+    allowlists cannot replace Runtime Court, capability verification, safety,
+    replay protection, and its approved executor. The legacy constructor
+    arguments remain accepted for migrating callers; neither can enable
+    consequential publishing.
+    """
 
     def __init__(
         self,
@@ -28,8 +35,6 @@ class EventEnforcer:
 
         self.bus = bus
         self._publish_fn = bus._publish if bus is not None else publish_fn
-        self._receipt_validator = receipt_validator
-        self._allowed_sources = allowed_actuation_sources
         self._default_source = default_source
 
     def publish(
@@ -59,16 +64,8 @@ class EventEnforcer:
         return event
 
     def _enforce(self, event: VelvetEvent) -> None:
-        if event.event_type != "ACTUATION":
-            return
-
-        if not event.receipt_id:
-            raise UnauthorizedEventError("ACTUATION event blocked: missing receipt_id")
-
-        if self._receipt_validator and not self._receipt_validator(event.receipt_id):
-            raise UnauthorizedEventError("ACTUATION event blocked: invalid receipt_id")
-
-        if self._allowed_sources and event.source not in self._allowed_sources:
+        if isinstance(event.event_type, str) and event.event_type.strip().upper() == "ACTUATION":
             raise UnauthorizedEventError(
-                "ACTUATION event blocked: unauthorized source {!r}".format(event.source)
+                "ACTUATION is not accepted by generic event publishing; "
+                "submit an intent through the Velvet Runtime Court and approved executor"
             )

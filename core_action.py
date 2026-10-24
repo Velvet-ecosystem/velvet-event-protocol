@@ -27,7 +27,7 @@ def publish_receipted_event(
     token, a matching safety gate, and an approved executor.
     """
 
-    if event_type == "ACTUATION":
+    if isinstance(event_type, str) and event_type.strip().upper() == "ACTUATION":
         raise RuntimeError(
             "ACTUATION events cannot be created by receipt-only helpers; "
             "use the Velvet Runtime Court and approved-executor pipeline"

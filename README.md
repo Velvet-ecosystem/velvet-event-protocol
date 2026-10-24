@@ -210,7 +210,12 @@ publish_receipted_event(
 )
 ```
 
-`publish_receipted_event()` refuses `ACTUATION` events. The retired `execute_authorized_action()` helper fails closed.
+`EventEnforcer.publish()` and `publish_receipted_event()` reject `ACTUATION`
+unconditionally, including case/whitespace variants. Receipt IDs and source
+allowlists never grant execution permission. The legacy enforcer delegates to
+this same policy. The retired `execute_authorized_action()` helper fails closed.
+Consequential requests use Runtime Court and its approved executor; outcome
+observations remain supported. See [migration and authority boundary](docs/court_authority_boundary.md).
 
 ## CAN Observation Contracts
 
