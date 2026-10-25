@@ -16,6 +16,8 @@ def current_timestamp() -> float:
 
 @dataclass(frozen=True)
 class VelvetEvent:
+    """Event evidence/request envelope; receipt linkage grants no execution authority."""
+
     event_id: str = field(default_factory=generate_event_id)
     timestamp: float = field(default_factory=current_timestamp)
     source: str = ""

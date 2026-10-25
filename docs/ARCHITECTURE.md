@@ -1,66 +1,43 @@
 # Velvet Event Protocol — Architecture
 
-## Overview
+Event Protocol transports observations, proposals, decisions and outcome evidence.
+It does not authorize consequential execution. The authoritative boundary is
+Velvet Runtime Court → verified capability token → safety/replay/persistence gates
+→ approved executor. See [Court authority boundary](court_authority_boundary.md).
 
-The Velvet Event Protocol is the enforcement layer between cognition and actuation. It ensures that every action taken by the Velvet runtime is authorized, receipted, and delivered through a controlled path. No module may actuate by circumventing this layer.
+## Components
 
----
+- `velvet_event_protocol/event_schema.py`: event envelope with optional receipt
+  linkage. Frozen fields do not make nested payload dictionaries immutable.
+- `velvet_event_protocol/event_bus.py`: trusted internal subscriber transport;
+  ordinary publishers use the enforcer rather than `_publish`.
+- `velvet_event_protocol/enforcer.py`: generic publisher. Rejects `ACTUATION`
+  unconditionally, before any subscriber/callback, including when a receipt ID or
+  source allowlist is supplied. Observation and outcome events remain available.
+- Root `event_enforcer.py`: legacy positional-constructor adapter to the same
+  packaged gate; it contains no separate authorization policy.
+- Root `runtime_wiring.py`: legacy assembly example using the packaged enforcer.
+  Production Runtime owns its private wiring; modules receive only its publisher.
+- `receipt_bridge.py`: observational receipt-ID lookup, not execution verification.
+- `core_action.py`: `publish_receipted_event` refuses ACTUATION;
+  `execute_authorized_action` is retired and raises rather than executing.
 
-## Component Roles
+## Migration
 
-**`event_schema.py`**
-Defines `VelvetEvent` — a frozen dataclass representing a single immutable event. All events carry a source, type, payload, and optionally a `receipt_id`. Immutability is structural: `frozen=True` prevents modification after creation.
+A caller cannot enable ACTUATION by omitting a verifier, supplying an always-true
+verifier, forging a receipt or calling from a trusted-looking source. Constructor
+arguments for the earlier receipt/source checks remain accepted only to avoid
+breaking observation-only call sites. They no longer grant publishing permission.
 
-**`event_types.py`**
-Canonical registry of event type strings, grouped by domain: SYSTEM, USER, DECISION, ACTION, MEMORY. Used for consistency across the runtime. Not enforced programmatically — consumed by convention.
+Consequential callers must submit strict intent to Runtime. Approved executors
+invoke their handlers directly after Runtime verification and record outcomes.
+`EXECUTION_COMPLETED` is evidence about an invocation, not permission for a
+subscriber to invoke again. Historical ACTUATION records may be inspected as data;
+they cannot be republished through this live generic boundary.
 
-**`event_bus.py`**
-Internal transport layer only. Maintains a list of subscribers and delivers events to them via `_publish`. The leading underscore is intentional — `_publish` is not a public interface. `EventBus` instances must never be passed to external modules. Wiring is exclusively the responsibility of `runtime_wiring`.
+## Trust model
 
-**`event_enforcer.py`**
-The enforcement gate. Wraps `_publish` and intercepts every event before delivery. Enforces three rules for ACTUATION events: receipt presence, receipt validity (if a validator is provided), and source authorization (if a source allowlist is configured). Raises `UnauthorizedEventError` on any violation. Future enforcement rules are added here only.
-
-**`receipt_bridge.py`**
-Constructs a receipt validator callable from a JSONL receipt log file. Bridges the file-based receipt chain from `velvet-receipts` into the enforcer's validator interface. Stateless — returns a function, holds no state itself.
-
-**`core_action.py`**
-The canonical actuation path. Combines receipt creation, logging, event construction, and enforcer publication into a single authorized call. This is the correct way to trigger an ACTUATION event. Depends on `Receipt` and `ReceiptLogger` from the `velvet-receipts` repo.
-
-**`runtime_wiring.py`**
-The sole authorized assembly point for the event runtime. The only location permitted to pass `EventBus._publish` directly to `EventEnforcer`. Returns a dict with three keys: `bus` (for subscribe wiring), `enforcer` (for inspection/testing), and `publish` (the only callable modules may hold). Modules must never receive `bus` or a raw publish callable.
-
----
-
-## Enforcement Chain
-
-```
-Event → Enforcer → Validation → Publish → Handlers
-```
-
-Every event passes through `EventEnforcer.publish`. For ACTUATION events, the enforcer checks receipt presence, receipt validity, and source authorization — in that order — before forwarding to `EventBus._publish`. Non-ACTUATION events pass through without restriction (future rules may change this).
-
----
-
-## Security Model
-
-**No direct bus publishing.** `EventBus._publish` is intentionally named with a leading underscore. The only legitimate caller is `runtime_wiring`. Any module calling it directly is bypassing enforcement.
-
-**Immutable events.** `VelvetEvent` is a frozen dataclass. Once constructed, it cannot be altered. There is no path to retroactively attach a receipt ID to an event — the receipt must be obtained before the event is created.
-
-**Receipt-backed actuation only.** An ACTUATION event without a `receipt_id` is rejected unconditionally. An ACTUATION event with a `receipt_id` that fails validation is also rejected. There is no override path.
-
-**Source allowlisting.** `EventEnforcer` accepts an optional `allowed_actuation_sources` set. When configured, only events from listed sources may actuate. Events from unlisted sources raise `UnauthorizedEventError` regardless of receipt validity.
-
----
-
-## Known Constraint
-
-Python's import system and introspection capabilities mean that a malicious or compromised module could access `EventBus._publish` directly, bypassing `EventEnforcer`. This system does not defend against that scenario.
-
-**The system assumes all loaded modules are trusted.** Module-level trust is a runtime and deployment concern, outside the scope of this package. Enforcement here is structural, not adversarial.
-
----
-
-## External Dependencies
-
-`core_action.py` imports `Receipt` and `ReceiptLogger` from `velvet-receipts`. These are not bundled in this repository. The event protocol is intentionally decoupled from the receipt implementation — the bridge is `receipt_bridge.py`, which accepts any JSONL log path.
+This is not an adversarial in-process Python sandbox. Trusted wiring owns the bus;
+a malicious same-process plugin can use introspection/private imports. Privileged
+device access must be isolated where protection from hostile plugins is required.
+This change closes the supported generic APIs; it does not claim process isolation.

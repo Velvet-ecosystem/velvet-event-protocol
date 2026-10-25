@@ -108,6 +108,10 @@ Request events require authorization before execution.
 
 ## Actuation Events
 
+Generic event publishing rejects `ACTUATION` unconditionally. The descriptions
+below identify consequential behaviour that must be submitted to Runtime's
+Court/capability/approved-executor path; they do not define a publishable command.
+
 Actuation events represent write-capable behavior or execution intent.
 
 Examples:
